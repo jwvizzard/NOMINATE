@@ -1,0 +1,354 @@
+---
+title: "Armed Services Committees NOMINATE Visualization"
+output: github_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+here::i_am("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/")
+#> here() starts at /Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/
+```
+
+## Armed Services Committee Rosters
+# The membership for the House and Senate Armed Services Committees (including the House National Security Committee in the XXX and XXX Congresses) was derived from the committees' reports of activities.
+# Committees published these reports on varying schedules, sometimes long after the Congress to which they referred. The reports were unavailable for some Congresses, and I assembled membership information from other sources, including C-SPAN hearings, which often list the committee membership.
+# These lists include ALL members of the committee during that Congress, including those who left the committee or joined late. There are a few exceptions, for instance in the 102nd Congress, I included Mary Bono but not Sonny Bono because he died at the beginning of the session and played no part in the hearings covered by this project.
+# There are several issues with NOMINATE scores, but they are the most readily available and consistent measure of ideology.
+# 1. NOMINATE scores are consistent for a single member across their membership in a legislative body, so they do not capture ideological evolution. Therefore, these measures may under- or overstate a member's ideological extremism at any given point. 
+# 2. The NOMINATE dimensions do not directly address military and national security issues. It is possible that there are outliers who score extremely conservative on the economic or racial scale by are liberal on national security issues. However, that seems less likely during the period of this study--for instance Democrats like Joe Lieberman who were hawkish and conservative on national security were also among the most conservative members of their party on other issues. 
+
+## Code
+
+# Load required libraries
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+# Load data
+
+```{r}
+hasc102 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/HASC_102.csv")
+hasc103 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_103.csv")
+hasc104 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_104.csv")
+hasc105 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_105.csv")
+hasc106 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_106.csv")
+hasc107 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_107.csv")
+hasc108 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_108.csv")
+hasc109 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_109.csv")
+hasc110 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_110.csv")
+hasc111 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_111.csv")
+hasc112 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_112.csv")
+hasc113 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_113.csv")
+hasc114 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_114.csv")
+sasc102 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_102.csv")
+sasc103 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_103.csv")
+sasc104 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_104.csv")
+sasc105 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_105.csv")
+sasc106 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_106.csv")
+sasc107 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_107.csv")
+sasc108 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_108.csv")
+sasc109 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_109.csv")
+sasc110 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_110.csv")
+sasc111 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_111.csv")
+sasc112 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_112.csv")
+sasc113 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_113.csv")
+sasc114 <- read_csv("~/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/data/dissertation/SASC_114.csv")
+
+```
+
+## Plots
+
+```{r, echo=FALSE}
+knitr::opts_chunk$set(fig.width = 3.25, fig.height = 2)
+
+# plot of HASC in 102nd Congress
+ph102 <- ggplot(data = hasc102,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 102nd Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/figures", filename = Plot_HASC_102))
+
+# plot of HASC in 103d Congress
+ph103 <- ggplot(data = hasc103,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 103d Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_103))
+
+# plot of HASC in 104th Congress
+ph104 <- ggplot(data = hasc104,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph104 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 104th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_104))
+
+# plot of HASC in 105th Congress
+ph105 <- ggplot(data = hasc105,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph105 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 105th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_105))
+
+# plot of HASC in 106th Congress
+ph106 <- ggplot(data = hasc106,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph106 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 106th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_106))
+
+# plot of HASC in 107th Congress
+ph107 <- ggplot(data = hasc107,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph107 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 107th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_107))
+
+# plot of HASC in 108th Congress
+ph108 <- ggplot(data = hasc108,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph108 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 108th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_108))
+
+# plot of HASC in 109th Congress
+ph109 <- ggplot(data = hasc109,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph104 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 109th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_109))
+
+# plot of HASC in 110th Congress
+ph110 <- ggplot(data = hasc110,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph110 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 110th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_110))
+
+# plot of HASC in 111th Congress
+ph111 <- ggplot(data = hasc111,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph111 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 111th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_111))
+
+# plot of HASC in 112th Congress
+ph112 <- ggplot(data = hasc112,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph104 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 112th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_112))
+
+# plot of HASC in 113th Congress
+ph113 <- ggplot(data = hasc113,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph104 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 113th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_113))
+
+# plot of HASC in 114th Congress
+ph114 <- ggplot(data = hasc114,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ph114 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "HASC, 114th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_HASC_114))
+
+# plot of SASC in 102nd Congress
+ps102 <- ggplot(data = sasc102,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 102nd Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_102))
+
+# plot of SASC in 103d Congress
+ps103 <- ggplot(data = sasc103,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 103d Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_103))
+
+# plot of SASC in 104th Congress
+ps104 <- ggplot(data = sasc104,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 104th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_104))
+
+# plot of SASC in 105th Congress
+ps105 <- ggplot(data = sasc105,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 105th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_105))
+
+# plot of SASC in 106th Congress
+ps106 <- ggplot(data = sasc106,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 106th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_106))
+
+# plot of SASC in 107th Congress
+ps107 <- ggplot(data = sasc107,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 107th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_107))
+
+# plot of SASC in 108th Congress
+ps108 <- ggplot(data = sasc108,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 108th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_108))
+
+# plot of SASC in 109th Congress
+ps109 <- ggplot(data = sasc109,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 109th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_109))
+
+# plot of SASC in 110th Congress
+ps110 <- ggplot(data = sasc110,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 110th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_110))
+
+# plot of SASC in 111th Congress
+ps111 <- ggplot(data = sasc111,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 111th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_111))
+
+# plot of SASC in 112th Congress
+ps112 <- ggplot(data = sasc112,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 112th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_112))
+
+# plot of SASC in 113th Congress
+ps113 <- ggplot(data = sasc113,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 113th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_113))
+
+# plot of SASC in 114th Congress
+ps114 <- ggplot(data = sasc114,
+            mapping = aes(x = NOMINATE_DIM1, y = NOMINATE_DIM2, color = Party))
+ps102 + geom_point() +
+  scale_color_manual(values=c("blue", "red")) +
+labs(x = "Liberal / Conservative (econ)", y = "Intraparty",
+     title = "Ideological Distribution",
+     subtitle = "SASC, 114th Congress",
+     caption = "Source: DW-NOMINATE")
+ggsave(here("/Library/CloudStorage/ProtonDrive-james.vizzard@proton.me-folder/James/201801-20YYMM_PhD/P_Dissertation/figures", filename = Plot_SASC_114))
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
